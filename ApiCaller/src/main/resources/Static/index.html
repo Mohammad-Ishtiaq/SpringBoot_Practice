@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Health Data Viewer</title>
+    <style>
+        body {
+            text-align: center;
+            font-family: Arial, sans-serif;
+        }
+
+        .title {
+            border: 2px solid black;
+            display: inline-block;
+            padding: 10px 40px;
+            margin-top: 20px;
+            font-weight: bold;
+        }
+
+        .buttons {
+            margin-top: 20px;
+        }
+
+        .button {
+            display: inline-block;
+            border: 2px solid black;
+            padding: 10px 30px;
+            margin: 0 10px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .content {
+            border: 2px solid black;
+            position: absolute;
+            top: 200px; /* adjust if needed to match your layout */
+            bottom: 0;
+            left: 10%;
+            right: 10%;
+            padding: 20px;
+            overflow-y: auto;
+            font-size: 0.9em;
+            text-align: left;
+            white-space: pre-wrap;
+        }
+
+    </style>
+</head>
+<body>
+
+<div class="title">API Test Using Spring</div>
+
+<div class="buttons">
+    <div class="button" onclick="callApi('/api/button1')">Medical Information</div>
+    <div class="button" onclick="getRandomDateWeather()">Weather In NY in 2025</div>
+</div>
+
+<div class="content" id="contentArea"></div>
+
+<script>
+    function callApi(endpoint) {
+        fetch(endpoint)
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('contentArea').innerText = data;
+            })
+            .catch(error => {
+                document.getElementById('contentArea').innerText = 'Error: ' + error;
+            });
+    }
+
+    function getRandomDateWeather() {
+        const startDate = new Date("2025-01-01");
+        const endDate = new Date();
+
+        // Generate random date
+        const randomDate = new Date(startDate.getTime() + Math.random() * (endDate.getTime() - startDate.getTime()));
+        const formattedDate = randomDate.toISOString().split("T")[0]; // yyyy-mm-dd
+
+        const url = `https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/New%20York/${formattedDate}?unitGroup=us&key=6VR3MGRNCPS6RK93C6JR366TV&contentType=json`;
+
+        fetch(url)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("Failed to fetch weather data");
+                }
+                return response.json();
+            })
+            .then(data => {
+                const day = data.days[0];
+                const output = `
+Weather for New York on ${formattedDate}:
+
+- Conditions: ${day.conditions}
+- Temperature: High ${day.tempmax}°F / Low ${day.tempmin}°F
+- Humidity: ${day.humidity}%
+- Wind Speed: ${day.windspeed} mph
+- Sunrise: ${day.sunrise}
+- Sunset: ${day.sunset}
+            `;
+                document.getElementById("contentArea").innerText = output;
+            })
+            .catch(error => {
+                document.getElementById("contentArea").innerText = "Error: " + error.message;
+            });
+    }
+
+
+</script>
+
+</body>
+</html>
